@@ -1,28 +1,37 @@
 /****************************************************************************
-* This file is part of lulzJS-ncurses                                       *
+* This file is part of lulzJS-OpenGL                                        *
 * Copyleft meh.                                                             *
 *                                                                           *
-* lulzJS-ncurses is free software: you can redistribute it and/or modify    *
+* lulzJS-OpenGL is free software: you can redistribute it and/or modify     *
 * it under the terms of the GNU General Public License as published by      *
 * the Free Software Foundation, either version 3 of the License, or         *
 * (at your option) any later version.                                       *
 *                                                                           *
-* lulzJS-ncurses is distributed in the hope that it will be useful.         *
+* lulzJS-OpenGL is distributed in the hope that it will be useful.          *
 * but WITHOUT ANY WARRANTY; without even the implied warranty o.            *
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See th.             *
 * GNU General Public License for more details.                              *
 *                                                                           *
 * You should have received a copy of the GNU General Public License         *
-* along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
+* along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#ifndef _LULZJS_NCURSES_COMMON_H
-#define _LULZJS_NCURSES_COMMON_H
+#ifndef _LULZJS_NCURSES_H
+#define _LULZJS_NCURSES_H
 
-#include "lulzjs.h"
+#include "common.h"
 
-#include <GL/glut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
+extern JSBool exec (JSContext* cx);
+extern JSBool GL_initialize (JSContext* cx);
+
+static JSClass GL_class = {
+    "GL", 0,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+};
+
+static JSFunctionSpec GL_methods[] = {
+    {NULL}
+};
 
 #endif

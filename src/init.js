@@ -18,3 +18,4 @@
 
 require(["OpenGL.so", "OpenGL.js"]);
 
+require(["GL/GL.so",  "GL/GL.js"]);

@@ -24,7 +24,7 @@ window.display = window.onIdle = function () {
 };
 
 window.onKey = function (key, x, y) {
-    if (key == OpenGL.Escape) {
+    if (key == GLUT.Keys.Escape) {
         window.destroy();
         exit();
     }
