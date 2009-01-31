@@ -72,7 +72,16 @@ OpenGL_initialize (JSContext* cx)
         property = OBJECT_TO_JSVAL(Points);
         JS_SetProperty(cx, object, "Points", &property);
 
-        JSObject* Lines;
+        JSObject* Lines JS_NewObject(cx, NULL, NULL, NULL);
+        property = OBJECT_TO_JSVAL(Lines);
+        JS_SetProperty(cx, object, "Lines", &property);
+
+        JSObject* Polygons JS_NewObject(cx, NULL, NULL, NULL);
+        property = OBJECT_TO_JSVAL(Polygons);
+        JS_SetProperty(cx, object, "Polygons", &property);
+            property = INT_TO_JSVAL(GL_POINT);
+            JS_SetProperty(cx, Polygons, "Point", &property);
+            property = INT_TO_JSVAL(GL_LINE);
 
         return JS_TRUE;
     }
