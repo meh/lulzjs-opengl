@@ -16,7 +16,25 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-require(["OpenGL.so", "OpenGL.js"]);
+#include "GLUT.h"
 
-require(["GL/GL.so",     "GL/GL.js"]);
-require(["GLUT/GLUT.so", "GLUT/GLUT.js"]);
+JSBool exec (JSContext* cx) { return GLUT_initialize(cx); }
+
+JSBool
+GLUT_initialize (JSContext* cx)
+{
+    JSObject* object = JS_DefineObject(
+        cx, JS_GetGlobalObject(cx),
+        GLUT_class.name, &GLUT_class, NULL, 
+        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
+    );
+
+    if (object) {
+        JS_DefineFunctions(cx, object, GLUT_methods);
+
+        return JS_TRUE;
+    }
+
+    return JS_FALSE;
+}
+

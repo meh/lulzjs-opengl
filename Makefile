@@ -16,7 +16,7 @@ CFLAGS += -DDEBUG -g
 endif
 
 LIB_DIR     = src
-LIB         = ${LIB_DIR}/OpenGL.o
+LIB         = ${LIB_DIR}/OpenGL.o ${LIB_DIR}/GL/GL.o ${LIB_DIR}/GLUT/GLUT.o
 LIB_CFLAGS  = ${CFLAGS}
 LIB_LDFLAGS = ${LDFLAGS} -lX11 -lXi -lXmu -lglut -lGL -lGLU -lm 
 
@@ -32,8 +32,15 @@ lib_install: lib
 	mkdir -p ${LJS_LIBDIR}/OpenGL
 ########
 	cp -f  ${LIB_DIR}/init.js		${LJS_LIBDIR}/OpenGL/init.js
+########
 	cp -f  ${LIB_DIR}/OpenGL.o		${LJS_LIBDIR}/OpenGL/OpenGL.so
 	cp -f  ${LIB_DIR}/OpenGL.js		${LJS_LIBDIR}/OpenGL/OpenGL.js
+########
+	cp -f  ${LIB_DIR}/GL/GL.o		${LJS_LIBDIR}/OpenGL/GL/GL.so
+	cp -f  ${LIB_DIR}/GL/GL.js		${LJS_LIBDIR}/OpenGL/GL/GL.js
+########
+	cp -f  ${LIB_DIR}/GLUT/GLUT.o	${LJS_LIBDIR}/OpenGL/GLUT/GLUT.so
+	cp -f  ${LIB_DIR}/GLUT/GLUT.js	${LJS_LIBDIR}/OpenGL/GLUT/GLUT.js
 #######
 	chmod -R a+rx ${LJS_LIBDIR}/OpenGL
 

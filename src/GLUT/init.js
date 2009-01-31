@@ -16,7 +16,9 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-require(["OpenGL.so", "OpenGL.js"]);
+require(["OpenGL/OpenGL.so", "OpenGL/OpenGL.js"]);
 
-require(["GL/GL.so",     "GL/GL.js"]);
-require(["GLUT/GLUT.so", "GLUT/GLUT.js"]);
+require(["GLUT.so",  "GLUT.js"]);
+
+Program.GLUT = Program.OpenGL.GLUT;
+
