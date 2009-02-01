@@ -16,7 +16,7 @@ CFLAGS += -DDEBUG -g
 endif
 
 LIB_DIR     = src
-LIB         = ${LIB_DIR}/OpenGL.o ${LIB_DIR}/GL/GL.o ${LIB_DIR}/GLUT/GLUT.o
+LIB         = ${LIB_DIR}/OpenGL.o ${LIB_DIR}/GL/GL.o ${LIB_DIR}/GLUT/GLUT.o ${LIB_DIR}/GLUT/Window.o
 LIB_CFLAGS  = ${CFLAGS}
 LIB_LDFLAGS = ${LDFLAGS} -lX11 -lXi -lXmu -lglut -lGL -lGLU -lm 
 

@@ -16,29 +16,22 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#include "GLUT.h"
+#ifndef _LULZJS_NCURSES_H
+#define _LULZJS_NCURSES_H
 
-JSBool exec (JSContext* cx) { return GLUT_initialize(cx); }
+#include "common.h"
 
-JSBool
-GLUT_initialize (JSContext* cx)
-{
-    jsval jsParent;
-    JS_GetProperty(cx, JS_GetGlobalObject(cx), "OpenGL", &jsParent);
-    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
+extern JSBool exec (JSContext* cx);
+extern JSBool Window_initialize (JSContext* cx);
 
-    JSObject* object = JS_DefineObject(
-        cx, parent,
-        GLUT_class.name, &GLUT_class, NULL, 
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
+static JSClass Window_class = {
+    "Window", 0,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+};
 
-    if (object) {
-        JS_DefineFunctions(cx, object, GLUT_methods);
+static JSFunctionSpec Window_methods[] = {
+    {NULL}
+};
 
-        return JS_TRUE;
-    }
-
-    return JS_FALSE;
-}
-
+#endif

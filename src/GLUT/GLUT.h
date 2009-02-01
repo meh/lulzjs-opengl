@@ -25,7 +25,7 @@ extern JSBool exec (JSContext* cx);
 extern JSBool GLUT_initialize (JSContext* cx);
 
 static JSClass GLUT_class = {
-    "GLUT", 0,
+    "GLUT", JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };

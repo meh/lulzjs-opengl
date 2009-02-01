@@ -23,8 +23,12 @@ JSBool exec (JSContext* cx) { return GL_initialize(cx); }
 JSBool
 GL_initialize (JSContext* cx)
 {
+    jsval jsParent;
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "OpenGL", &jsParent);
+    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
+
     JSObject* object = JS_DefineObject(
-        cx, JS_GetGlobalObject(cx),
+        cx, parent,
         GL_class.name, &GL_class, NULL, 
         JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
     );

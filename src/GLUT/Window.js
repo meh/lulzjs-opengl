@@ -16,29 +16,6 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#include "GLUT.h"
+Object.extend(GLUT, {
 
-JSBool exec (JSContext* cx) { return GLUT_initialize(cx); }
-
-JSBool
-GLUT_initialize (JSContext* cx)
-{
-    jsval jsParent;
-    JS_GetProperty(cx, JS_GetGlobalObject(cx), "OpenGL", &jsParent);
-    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
-
-    JSObject* object = JS_DefineObject(
-        cx, parent,
-        GLUT_class.name, &GLUT_class, NULL, 
-        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
-    );
-
-    if (object) {
-        JS_DefineFunctions(cx, object, GLUT_methods);
-
-        return JS_TRUE;
-    }
-
-    return JS_FALSE;
-}
-
+});
