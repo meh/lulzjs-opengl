@@ -16,19 +16,24 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#ifndef _LULZJS_NCURSES_H
-#define _LULZJS_NCURSES_H
+#ifndef _LULZJS_OPENGL_GLUT_WINDOW_H
+#define _LULZJS_OPENGL_GLUT_WINDOW_H
 
 #include "common.h"
 
 extern JSBool exec (JSContext* cx);
 extern JSBool Window_initialize (JSContext* cx);
 
+extern JSBool Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern void   Window_finalize (JSContext* cx, JSObject* object);
+
 static JSClass Window_class = {
     "Window", 0,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Window_finalize
 };
+
+extern JSBool Window_set_onDisplay (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
 
 static JSFunctionSpec Window_methods[] = {
     {NULL}

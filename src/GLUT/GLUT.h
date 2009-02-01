@@ -16,8 +16,8 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#ifndef _LULZJS_NCURSES_H
-#define _LULZJS_NCURSES_H
+#ifndef _LULZJS_OPENGL_GLUT_H
+#define _LULZJS_OPENGL_GLUT_H
 
 #include "common.h"
 
@@ -30,7 +30,12 @@ static JSClass GLUT_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
+extern JSBool GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 static JSFunctionSpec GLUT_methods[] = {
+    {"init",     GLUT_init,     0, 0, 0},
+    {"mainLoop", GLUT_mainLoop, 0, 0, 0},
     {NULL}
 };
 

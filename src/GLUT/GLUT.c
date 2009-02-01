@@ -18,6 +18,11 @@
 
 #include "GLUT.h"
 
+void onDisplay (void)
+{
+
+}
+
 JSBool exec (JSContext* cx) { return GLUT_initialize(cx); }
 
 JSBool
@@ -41,4 +46,44 @@ GLUT_initialize (JSContext* cx)
 
     return JS_FALSE;
 }
+
+JSBool
+GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* arguments;
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &arguments)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    if (!JS_IsArrayObject(cx, arguments)) {
+        JS_ReportError(cx, "You have to pass an array.");
+        return JS_FALSE;
+    }
+
+    jsuint length; JS_GetArrayLength(cx, arguments, &length);
+    char** array = JS_malloc(cx, length*sizeof(char*));
+
+    jsuint i;
+    for (i = 0; i < length; i++) {
+        jsval val; JS_GetElement(cx, arguments, i, &val);
+        array[i] = JS_strdup(cx, JS_GetStringBytes(JS_ValueToString(cx, val)));
+    }
+
+    glutInit((int*)&length, array);
+
+    jsval inited = JSVAL_TRUE;
+    JS_SetProperty(cx, object, "inited", &inited);
+
+    return JS_TRUE;
+}
+
+JSBool
+GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    glutMainLoop();
+    return JS_TRUE;
+}
+
 

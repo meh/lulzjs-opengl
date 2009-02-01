@@ -18,7 +18,8 @@
 
 require(["OpenGL/OpenGL.so", "OpenGL/OpenGL.js"]);
 
-require(["GLUT.so",  "GLUT.js"]);
+require(["GLUT.so",   "GLUT.js"]);
+require(["Window.so", "Window.js"]);
 
 Program.GLUT = Program.OpenGL.GLUT;
 

@@ -8,11 +8,11 @@ CFLAGS     = -Os -DXP_UNIX -DJS_THREADSAFE -D__LIB_VERSION__="\"${VERSION}\"" -I
 LDFLAGS    = -ljs -llulzjs
 
 ifdef DEBUG
-CFLAGS += -g
+CFLAGS += -g -Wall
 endif
 
 ifdef DDEBUG
-CFLAGS += -DDEBUG -g
+CFLAGS += -DDEBUG -g -Wall
 endif
 
 LIB_DIR     = src
@@ -30,17 +30,22 @@ $(LIB) : $(LIB:.o=.c)
 
 lib_install: lib
 	mkdir -p ${LJS_LIBDIR}/OpenGL
+	mkdir -p ${LJS_LIBDIR}/OpenGL/GL
+	mkdir -p ${LJS_LIBDIR}/OpenGL/GLUT
 ########
-	cp -f  ${LIB_DIR}/init.js		${LJS_LIBDIR}/OpenGL/init.js
+	cp -f  ${LIB_DIR}/init.js			${LJS_LIBDIR}/OpenGL/init.js
+	cp -f  ${LIB_DIR}/OpenGL.o			${LJS_LIBDIR}/OpenGL/OpenGL.so
+	cp -f  ${LIB_DIR}/OpenGL.js			${LJS_LIBDIR}/OpenGL/OpenGL.js
 ########
-	cp -f  ${LIB_DIR}/OpenGL.o		${LJS_LIBDIR}/OpenGL/OpenGL.so
-	cp -f  ${LIB_DIR}/OpenGL.js		${LJS_LIBDIR}/OpenGL/OpenGL.js
+	cp -f  ${LIB_DIR}/GL/init.js		${LJS_LIBDIR}/OpenGL/GL/init.js
+	cp -f  ${LIB_DIR}/GL/GL.o			${LJS_LIBDIR}/OpenGL/GL/GL.so
+	cp -f  ${LIB_DIR}/GL/GL.js			${LJS_LIBDIR}/OpenGL/GL/GL.js
 ########
-	cp -f  ${LIB_DIR}/GL/GL.o		${LJS_LIBDIR}/OpenGL/GL/GL.so
-	cp -f  ${LIB_DIR}/GL/GL.js		${LJS_LIBDIR}/OpenGL/GL/GL.js
-########
-	cp -f  ${LIB_DIR}/GLUT/GLUT.o	${LJS_LIBDIR}/OpenGL/GLUT/GLUT.so
-	cp -f  ${LIB_DIR}/GLUT/GLUT.js	${LJS_LIBDIR}/OpenGL/GLUT/GLUT.js
+	cp -f  ${LIB_DIR}/GLUT/init.js		${LJS_LIBDIR}/OpenGL/GLUT/init.js
+	cp -f  ${LIB_DIR}/GLUT/GLUT.o		${LJS_LIBDIR}/OpenGL/GLUT/GLUT.so
+	cp -f  ${LIB_DIR}/GLUT/GLUT.js		${LJS_LIBDIR}/OpenGL/GLUT/GLUT.js
+	cp -f  ${LIB_DIR}/GLUT/Window.o		${LJS_LIBDIR}/OpenGL/GLUT/Window.so
+	cp -f  ${LIB_DIR}/GLUT/Window.js	${LJS_LIBDIR}/OpenGL/GLUT/Window.js
 #######
 	chmod -R a+rx ${LJS_LIBDIR}/OpenGL
 

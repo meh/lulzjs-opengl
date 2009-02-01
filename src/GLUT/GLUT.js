@@ -16,6 +16,6 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-Object.extend(GLUT, {
+Object.extend(OpenGL.GLUT, {
 
 });
