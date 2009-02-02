@@ -33,9 +33,23 @@ static JSClass GL_class = {
 extern JSBool GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
+extern JSBool GL_begin (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool GL_end (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+extern JSBool GL_normal (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool GL_vertex (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 static JSFunctionSpec GL_methods[] = {
     {"clear", GL_clear, 0, 0, 0},
     {"flush", GL_flush, 0, 0, 0},
+
+    {"begin", GL_begin, 0, 0, 0},
+    {"end",   GL_end,   0, 0, 0},
+
+    {"normal", GL_normal, 0, 0, 0},
+    {"vertex", GL_vertex, 0, 0, 0},
+    {"color",  GL_color,  0, 0, 0},
     {NULL}
 };
 

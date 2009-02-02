@@ -66,6 +66,39 @@ GLUT_initialize (JSContext* cx)
            property = INT_TO_JSVAL(GLUT_LUMINANCE);
            JS_SetProperty(cx, DisplayModes, "Luminance", &property);
 
+        JSObject* Keys = JS_NewObject(cx, NULL, NULL, NULL);
+        property = OBJECT_TO_JSVAL(Keys);
+        JS_SetProperty(cx, object, "Keys", &property);
+            property = OBJECT_TO_JSVAL(JS_GetFunctionObject(
+                JS_NewFunction(cx, GLUT_KeyF, 1, 0, NULL, "KEY_F")
+            ));
+            JS_SetProperty(cx, Keys, "F", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_LEFT);
+            JS_SetProperty(cx, Keys, "Left", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_UP);
+            JS_SetProperty(cx, Keys, "Up", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_RIGHT);
+            JS_SetProperty(cx, Keys, "Right", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_DOWN);
+            JS_SetProperty(cx, Keys, "Down", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_PAGE_UP);
+            JS_SetProperty(cx, Keys, "PageUp", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_PAGE_DOWN);
+            JS_SetProperty(cx, Keys, "PageDown", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_HOME);
+            JS_SetProperty(cx, Keys, "Home", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_END);
+            JS_SetProperty(cx, Keys, "End", &property);
+            property = INT_TO_JSVAL(GLUT_KEY_INSERT);
+            JS_SetProperty(cx, Keys, "Insert", &property);
+            property = INT_TO_JSVAL(24);
+            JS_SetProperty(cx, Keys, "Cancel", &property);
+            property = INT_TO_JSVAL(27);
+            JS_SetProperty(cx, Keys, "Escape", &property);
+            property = INT_TO_JSVAL(32);
+            JS_SetProperty(cx, Keys, "Space", &property);
+            property = INT_TO_JSVAL(127);
+            JS_SetProperty(cx, Keys, "Delete", &property);
 
         return JS_TRUE;
     }
@@ -74,10 +107,44 @@ GLUT_initialize (JSContext* cx)
 }
 
 JSBool
+GLUT_KeyF (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    jsint n; JS_ValueToInt32(cx, argv[0], &n);
+
+    if (n < 1 || n > 12) {
+        JS_ReportError(cx, "Out of range.");
+        return JS_FALSE;
+    }
+
+    switch (n) {
+        case  1: *rval = INT_TO_JSVAL(GLUT_KEY_F1); break;
+        case  2: *rval = INT_TO_JSVAL(GLUT_KEY_F2); break;
+        case  3: *rval = INT_TO_JSVAL(GLUT_KEY_F3); break;
+        case  4: *rval = INT_TO_JSVAL(GLUT_KEY_F4); break;
+        case  5: *rval = INT_TO_JSVAL(GLUT_KEY_F5); break;
+        case  6: *rval = INT_TO_JSVAL(GLUT_KEY_F6); break;
+        case  7: *rval = INT_TO_JSVAL(GLUT_KEY_F7); break;
+        case  8: *rval = INT_TO_JSVAL(GLUT_KEY_F8); break;
+        case  9: *rval = INT_TO_JSVAL(GLUT_KEY_F9); break;
+        case 10: *rval = INT_TO_JSVAL(GLUT_KEY_F10); break;
+        case 11: *rval = INT_TO_JSVAL(GLUT_KEY_F11); break;
+        case 12: *rval = INT_TO_JSVAL(GLUT_KEY_F12); break;
+    }
+
+    return JS_TRUE;
+}
+
+
+JSBool
 GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     JSObject* arguments;
-    jsint     bits;
+    jsint     bits = 0;
 
     if (argc < 2 || !JS_ConvertArguments(cx, argc, argv, "oi", &arguments)) {
         JS_ReportError(cx, "Not enough parameters.");
@@ -106,22 +173,6 @@ GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval
 
     return JS_TRUE;
 }
-
-JSBool
-GLUT_initDisplayMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    jsint bits;
-
-    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
-        JS_ReportError(cx, "Not enough parameters.");
-        return JS_FALSE;
-    }
-
-    glutInitDisplayMode(bits);
-
-    return JS_TRUE;
-}
-
 
 JSBool
 GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)

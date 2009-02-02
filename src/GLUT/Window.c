@@ -205,10 +205,10 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
             glutIdleFunc(&onIdle);
         }
 
-        JS_GetProperty(cx, events, "onResize", &event);
+/*        JS_GetProperty(cx, events, "onResize", &event);
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
             JS_SetProperty(cx, object, "onResize", &event);
-        }
+        }*/
 
         JS_GetProperty(cx, events, "onKey", &event);
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {

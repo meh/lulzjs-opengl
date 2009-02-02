@@ -119,9 +119,141 @@ GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 }
 
 JSBool
+GL_begin (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    jsint bits;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    glBegin(bits);
+
+    return JS_TRUE;
+}
+
+JSBool
+GL_end (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    glEnd();
+    return JS_TRUE;
+}
+
+JSBool
 GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     glFlush();
+    return JS_TRUE;
+}
+
+JSBool
+GL_normal (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* array;
+    jsdouble x, y, z;
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    jsuint length;
+    JS_GetArrayLength(cx, array, &length);
+
+    if (length != 3) {
+        JS_ReportError(cx, "Wrong number of values.");
+        return JS_FALSE;
+    }
+
+    jsval element;
+    JS_GetElement(cx, array, 0, &element); JS_ValueToNumber(cx, element, &x);
+    JS_GetElement(cx, array, 1, &element); JS_ValueToNumber(cx, element, &y);
+    JS_GetElement(cx, array, 2, &element); JS_ValueToNumber(cx, element, &z);
+
+    glNormal3d(x, y, z);
+
+    return JS_TRUE;
+}
+
+JSBool
+GL_vertex (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* array;
+    jsdouble x, y, z, w;
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    jsuint length;
+    JS_GetArrayLength(cx, array, &length);
+
+    if (length < 2 || length > 4) {
+        JS_ReportError(cx, "Wrong number of values.");
+        return JS_FALSE;
+    }
+
+    jsval element;
+
+    switch (length) {
+        case 4:
+        JS_GetElement(cx, array, 3, &element); JS_ValueToNumber(cx, element, &w);
+
+        case 3:
+        JS_GetElement(cx, array, 2, &element); JS_ValueToNumber(cx, element, &z);
+
+        case 2:
+        JS_GetElement(cx, array, 1, &element); JS_ValueToNumber(cx, element, &y);
+        JS_GetElement(cx, array, 0, &element); JS_ValueToNumber(cx, element, &x);
+    }
+
+    switch (length) {
+        case 2: glVertex2d(x, y); break;
+        case 3: glVertex3d(x, y, z); break;
+        case 4: glVertex4d(x, y, z, w); break;
+    }
+
+    return JS_TRUE;
+}
+
+JSBool
+GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* array;
+    int32 r, g, b, alpha;
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    jsuint length;
+    JS_GetArrayLength(cx, array, &length);
+
+    if (length < 3 || length > 4) {
+        JS_ReportError(cx, "Wrong number of values.");
+        return JS_FALSE;
+    }
+
+    jsval element;
+
+    switch (length) {
+        case 4:
+        JS_GetElement(cx, array, 3, &element); JS_ValueToInt32(cx, element, &alpha);
+
+        case 3:
+        JS_GetElement(cx, array, 2, &element); JS_ValueToInt32(cx, element, &b);
+        JS_GetElement(cx, array, 1, &element); JS_ValueToInt32(cx, element, &g);
+        JS_GetElement(cx, array, 0, &element); JS_ValueToInt32(cx, element, &r);
+    }
+
+    switch (length) {
+        case 3: glColor3i(r, g, b); break;
+        case 4: glColor4i(r, g, b, alpha); break;
+    }
+
     return JS_TRUE;
 }
 

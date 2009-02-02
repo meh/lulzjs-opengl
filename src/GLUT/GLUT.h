@@ -30,6 +30,8 @@ static JSClass GLUT_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
+extern JSBool GLUT_KeyF (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 extern JSBool GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
