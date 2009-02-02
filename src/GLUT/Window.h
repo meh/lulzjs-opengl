@@ -34,6 +34,7 @@ static JSClass Window_class = {
 };
 
 extern JSBool Window_set_onDisplay (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+extern JSBool Window_set_onOverlay (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
 
 static JSFunctionSpec Window_methods[] = {
     {NULL}

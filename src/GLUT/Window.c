@@ -25,10 +25,14 @@ JSObject*  actualWindow;
 
 void onDisplay (void); // onDisplay
 void onOverlay (void); // onOverlay
+void onIdle (void); // onIdle
 void onResize (int width, int height); // onResize
 void onKey (unsigned char key, int x, int y); // onKey
+void onSpecialKey (int key, int x, int y); // onKey
 void onMouseClick (int button, int state, int x, int y); // Mouse.onDown Mouse.onUp Mouse.onClick
 void onMouseDrag (int x, int y); // Mouse.onDrag
+void onMouseMove (int x, int y); // Mouse.onMove
+void onMouseEnterLeave (int state); // Mouse.onEnter Mouse.onLeave
 
 JSBool exec (JSContext* cx) { return Window_initialize(cx); }
 
@@ -135,6 +139,9 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         JS_ReportError(cx, "A parameter is missing.");
         return JS_FALSE;
     }
+
+    glutInitWindowSize(JSVAL_TO_INT(width), JSVAL_TO_INT(height));
+    glutInitWindowPosition(JSVAL_TO_INT(x), JSVAL_TO_INT(y));
     
     int* win = JS_malloc(cx, sizeof(int));
     if (parent) {
@@ -147,8 +154,6 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     else {
         *win = glutCreateWindow(JS_GetStringBytes(JS_ValueToString(cx, title)));
         __Window_setWindow(cx, *win, object);
-        glutPositionWindow(JSVAL_TO_INT(x), JSVAL_TO_INT(y));
-        glutReshapeWindow(JSVAL_TO_INT(width), JSVAL_TO_INT(height));
     }
     JS_SetPrivate(cx, object, win);
 
@@ -164,31 +169,96 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         JS_SetProperty(cx, Size, "Width", &width);
         JS_SetProperty(cx, Size, "Height", &height);
 
-    JSObject* Position   = JS_NewObject(cx, NULL, NULL, NULL);
-    jsval     jsPosition = OBJECT_TO_JSVAL(Position);
-    JS_SetProperty(cx, object, "Position", &jsPosition);
-        JS_SetProperty(cx, Position, "X", &x);
-        JS_SetProperty(cx, Position, "Y", &y);
-
     JS_DefineProperty(cx, object, "onDisplay", JSVAL_VOID, NULL, Window_set_onDisplay, 0);
+    JS_DefineProperty(cx, object, "onOverlay", JSVAL_VOID, NULL, Window_set_onOverlay, 0);
 
     glutDisplayFunc(&onDisplay);
-
-    // Clean callbacks
-    glutOverlayDisplayFunc(NULL);
-    glutReshapeFunc(NULL);
-    glutKeyboardFunc(NULL);
-    glutMouseFunc(NULL);
-    glutMotionFunc(NULL);
-    glutPassiveMotionFunc(NULL);
+    glutReshapeFunc(&onResize);
 
     if (events) {
         jsval event;
 
         JS_GetProperty(cx, events, "onDisplay", &event);
+        if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+            JS_SetProperty(cx, object, "onDisplay", &event);
+        }
+        else {
+            event = JS_EVAL(cx, "Function.empty");
+            JS_SetProperty(cx, object, "onDisplay", &event);
+        }
+
+        JS_GetProperty(cx, events, "onOverlay", &event);
+        if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+            JS_SetProperty(cx, object, "onOverlay", &event);
+            glutOverlayDisplayFunc(&onOverlay);
+        }
+
+        JS_GetProperty(cx, events, "onIdle", &event);
+        if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+            JS_SetProperty(cx, object, "onIdle", &event);
+            glutIdleFunc(&onIdle);
+        }
+
+        JS_GetProperty(cx, events, "onResize", &event);
+        if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+            JS_SetProperty(cx, object, "onResize", &event);
+        }
+        else {
+            event = JS_EVAL(cx, "Function.empty");
+            JS_SetProperty(cx, object, "onResize", &event);
+        }
+
+        JS_GetProperty(cx, events, "onKey", &event);
+        if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+            JS_SetProperty(cx, object, "onKey", &event);
+            glutKeyboardFunc(&onKey);
+            glutSpecialFunc(&onSpecialKey);
+        }
+
+        JS_GetProperty(cx, events, "Mouse", &event);
         if (JSVAL_IS_OBJECT(event)) {
-            if (!JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
-                event = JS_EVAL(cx, "Function.empty");
+            JSObject* mouseEvent = JSVAL_TO_OBJECT(event);
+
+            JS_GetProperty(cx, events, "onDown", &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                JS_SetProperty(cx, Mouse, "onDown", &event);
+                glutMouseFunc(&onMouseClick);
+            }
+
+            JS_GetProperty(cx, events, "onUp", &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                JS_SetProperty(cx, Mouse, "onUp", &event);
+                glutMouseFunc(&onMouseClick);
+            }
+
+            JS_GetProperty(cx, events, "onClick", &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                JS_SetProperty(cx, Mouse, "onClick", &event);
+                glutMouseFunc(&onMouseClick);
+            }
+
+            JS_GetProperty(cx, events, "onDrag", &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                JS_SetProperty(cx, Mouse, "onDrag", &event);
+                glutMotionFunc(&onMouseDrag);
+            }
+
+            JS_GetProperty(cx, events, "onMove", &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                JS_SetProperty(cx, Mouse, "onMove", &event);
+                glutPassiveMotionFunc(&onMouseMove);
+            }
+
+            JS_GetProperty(cx, events, "onLeave", &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                JS_SetProperty(cx, Mouse, "onLeave", &event);
+                glutEntryFunc(&onMouseEnterLeave);
+            }
+           
+            JS_GetProperty(cx, events, "onEnter", &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                JS_SetProperty(cx, Mouse, "onEnter", &event);
+                glutEntryFunc(&onMouseEnterLeave);
             }
         }
     }
@@ -213,6 +283,13 @@ Window_set_onDisplay (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
     return JS_TRUE;
 }
 
+JSBool
+Window_set_onOverlay (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+{
+    return JS_TRUE;
+}
+
+
 void
 __Window_setWindow (JSContext* cx, int win, JSObject* Window)
 {
@@ -234,6 +311,13 @@ void onOverlay (void)
 {
     jsval jsFunc; JS_GetProperty(actualContext, actualWindow, "onOverlay", &jsFunc);
 
+    jsval ret;
+    JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+}
+
+void onIdle (void)
+{
+    jsval jsFunc; JS_GetProperty(actualContext, actualWindow, "onIdle", &jsFunc);
     jsval ret;
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
 }
@@ -263,6 +347,16 @@ void onKey (unsigned char key, int x, int y)
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
 }
 
+void onSpecialKey (int key, int x, int y)
+{
+    jsval jsFunc; JS_GetProperty(actualContext, actualWindow, "onKey", &jsFunc);
+
+    jsval ret;
+    jsval argv[] = {INT_TO_JSVAL(key), INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
+    JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+}
+
+
 void onMouseClick (int button, int state, int x, int y)
 {
     jsval jsMouse; JS_GetProperty(actualContext, actualWindow, "Mouse", &jsMouse);
@@ -271,38 +365,63 @@ void onMouseClick (int button, int state, int x, int y)
     jsval jsFunc, ret;
     jsval argv[] = {INT_TO_JSVAL(button), INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
 
-    if (state == GLUT_DOWN) {
+    switch (state) {
+        case GLUT_DOWN:
         JS_GetProperty(actualContext, Mouse, "onDown", &jsFunc);
+        JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+        break;
 
-        if (JSVAL_IS_OBJECT(jsFunc)) {
-            if (JS_ObjectIsFunction(actualContext, JSVAL_TO_OBJECT(jsFunc))) {
-                JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
-            }
-        }
-    }
-    else {
+        case GLUT_UP:
         JS_GetProperty(actualContext, Mouse, "onUp", &jsFunc);
-        if (JSVAL_IS_OBJECT(jsFunc)) {
-            if (JS_ObjectIsFunction(actualContext, JSVAL_TO_OBJECT(jsFunc))) {
-                JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
-            }
-        }
+        JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
 
         JS_GetProperty(actualContext, Mouse, "onClick", &jsFunc);
-        if (JSVAL_IS_OBJECT(jsFunc)) {
-            if (JS_ObjectIsFunction(actualContext, JSVAL_TO_OBJECT(jsFunc))) {
-                JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
-            }
-        }
+        JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+        break;
     }
 }
 
 void onMouseDrag (int x, int y)
 {
-    jsval jsFunc; JS_GetProperty(actualContext, actualWindow, "onDrag", &jsFunc);
+    jsval jsMouse; JS_GetProperty(actualContext, actualWindow, "Mouse", &jsMouse);
+    JSObject* Mouse = JSVAL_TO_OBJECT(jsMouse);
+
+    jsval jsFunc; JS_GetProperty(actualContext, Mouse, "onDrag", &jsFunc);
 
     jsval ret;
     jsval argv[] = {INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 2, argv, &ret);
+}
+
+void onMouseMove (int x, int y)
+{
+    jsval jsMouse; JS_GetProperty(actualContext, actualWindow, "Mouse", &jsMouse);
+    JSObject* Mouse = JSVAL_TO_OBJECT(jsMouse);
+
+    jsval jsFunc; JS_GetProperty(actualContext, Mouse, "onMove", &jsFunc);
+
+    jsval ret;
+    jsval argv[] = {INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
+    JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 2, argv, &ret);
+}
+
+void onMouseEnterLeave (int state)
+{
+    jsval jsMouse; JS_GetProperty(actualContext, actualWindow, "Mouse", &jsMouse);
+    JSObject* Mouse = JSVAL_TO_OBJECT(jsMouse);
+
+    jsval jsFunc, ret;
+
+    switch (state) {
+        case GLUT_LEFT:
+        JS_GetProperty(actualContext, Mouse, "onLeave", &jsFunc);
+        JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+        break;
+
+        case GLUT_ENTERED:
+        JS_GetProperty(actualContext, Mouse, "onEnter", &jsFunc);
+        JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+        break;
+    }
 }
 
