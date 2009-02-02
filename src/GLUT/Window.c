@@ -99,38 +99,38 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     JS_ValueToObject(cx, argv[offset], &options);
 
     JS_GetProperty(cx, options, "title", &title);
-    if (JSVAL_IS_VOID(title) || JSVAL_IS_VOID(title)) {
+    if (JSVAL_IS_NULL(title) || JSVAL_IS_VOID(title)) {
         JS_GetProperty(cx, options, "Title", &title);
 
-        if (JSVAL_IS_VOID(title) || JSVAL_IS_VOID(title)) {
+        if (JSVAL_IS_NULL(title) || JSVAL_IS_VOID(title)) {
             title = STRING_TO_JSVAL(JS_NewString(cx, JS_strdup(cx, "lulzJS"), strlen("lulzJS")));
         }
     }
     
     JS_GetProperty(cx, options, "width", &width);
-    if (JSVAL_IS_VOID(width) || JSVAL_IS_VOID(width)) {
+    if (JSVAL_IS_NULL(width) || JSVAL_IS_VOID(width)) {
         JS_GetProperty(cx, options, "Width", &width);
     }
 
     JS_GetProperty(cx, options, "height", &height);
-    if (JSVAL_IS_VOID(height) || JSVAL_IS_VOID(height)) {
+    if (JSVAL_IS_NULL(height) || JSVAL_IS_VOID(height)) {
         JS_GetProperty(cx, options, "Height", &height);
     }
 
     JS_GetProperty(cx, options, "x", &x);
-    if (JSVAL_IS_VOID(x) || JSVAL_IS_VOID(x)) {
+    if (JSVAL_IS_NULL(x) || JSVAL_IS_VOID(x)) {
         JS_GetProperty(cx, options, "X", &x);
 
-        if (JSVAL_IS_VOID(x) || JSVAL_IS_VOID(x)) {
+        if (JSVAL_IS_NULL(x) || JSVAL_IS_VOID(x)) {
             x = INT_TO_JSVAL(0);
         }
     }
 
     JS_GetProperty(cx, options, "y", &y);
-    if (JSVAL_IS_VOID(y) || JSVAL_IS_VOID(y)) {
+    if (JSVAL_IS_NULL(y) || JSVAL_IS_VOID(y)) {
         JS_GetProperty(cx, options, "Y", &y);
 
-        if (JSVAL_IS_VOID(y) || JSVAL_IS_VOID(y)) {
+        if (JSVAL_IS_NULL(y) || JSVAL_IS_VOID(y)) {
             y = INT_TO_JSVAL(0);
         }
     }
@@ -205,10 +205,10 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
             glutIdleFunc(&onIdle);
         }
 
-/*        JS_GetProperty(cx, events, "onResize", &event);
+        JS_GetProperty(cx, events, "onResize", &event);
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
             JS_SetProperty(cx, object, "onResize", &event);
-        }*/
+        }
 
         JS_GetProperty(cx, events, "onKey", &event);
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
@@ -264,6 +264,8 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
             }
         }
     }
+
+    puts("4");
 
     return JS_TRUE;
 }
