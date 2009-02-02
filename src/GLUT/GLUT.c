@@ -18,11 +18,6 @@
 
 #include "GLUT.h"
 
-void onDisplay (void)
-{
-
-}
-
 JSBool exec (JSContext* cx) { return GLUT_initialize(cx); }
 
 JSBool
@@ -41,6 +36,37 @@ GLUT_initialize (JSContext* cx)
     if (object) {
         JS_DefineFunctions(cx, object, GLUT_methods);
 
+        jsval property;
+
+        JSObject* DisplayModes = JS_NewObject(cx, NULL, NULL, NULL);
+        property = OBJECT_TO_JSVAL(DisplayModes);
+        JS_SetProperty(cx, object, "DisplayModes", &property);
+           property = INT_TO_JSVAL(GLUT_RGB);
+           JS_SetProperty(cx, DisplayModes, "RGB", &property);
+           property = INT_TO_JSVAL(GLUT_RGBA);
+           JS_SetProperty(cx, DisplayModes, "RGBA", &property);
+           property = INT_TO_JSVAL(GLUT_INDEX);
+           JS_SetProperty(cx, DisplayModes, "Index", &property);
+           property = INT_TO_JSVAL(GLUT_SINGLE);
+           JS_SetProperty(cx, DisplayModes, "Single", &property);
+           property = INT_TO_JSVAL(GLUT_DOUBLE);
+           JS_SetProperty(cx, DisplayModes, "Double", &property);
+           property = INT_TO_JSVAL(GLUT_ACCUM);
+           JS_SetProperty(cx, DisplayModes, "Accum", &property);
+           property = INT_TO_JSVAL(GLUT_ALPHA);
+           JS_SetProperty(cx, DisplayModes, "Alpha", &property);
+           property = INT_TO_JSVAL(GLUT_DEPTH);
+           JS_SetProperty(cx, DisplayModes, "Depth", &property);
+           property = INT_TO_JSVAL(GLUT_STENCIL);
+           JS_SetProperty(cx, DisplayModes, "Stencil", &property);
+           property = INT_TO_JSVAL(GLUT_MULTISAMPLE);
+           JS_SetProperty(cx, DisplayModes, "MultiSample", &property);
+           property = INT_TO_JSVAL(GLUT_STEREO);
+           JS_SetProperty(cx, DisplayModes, "Stereo", &property);
+           property = INT_TO_JSVAL(GLUT_LUMINANCE);
+           JS_SetProperty(cx, DisplayModes, "Luminance", &property);
+
+
         return JS_TRUE;
     }
 
@@ -51,8 +77,9 @@ JSBool
 GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     JSObject* arguments;
+    jsint     bits;
 
-    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &arguments)) {
+    if (argc < 2 || !JS_ConvertArguments(cx, argc, argv, "oi", &arguments)) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
@@ -72,6 +99,7 @@ GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval
     }
 
     glutInit((int*)&length, array);
+    glutInitDisplayMode(bits);
 
     jsval inited = JSVAL_TRUE;
     JS_SetProperty(cx, object, "inited", &inited);
@@ -80,10 +108,32 @@ GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval
 }
 
 JSBool
+GLUT_initDisplayMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    jsint bits;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    glutInitDisplayMode(bits);
+
+    return JS_TRUE;
+}
+
+
+JSBool
 GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     glutMainLoop();
     return JS_TRUE;
 }
 
+JSBool
+GLUT_swapBuffers (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    glutSwapBuffers();
+    return JS_TRUE;
+}
 

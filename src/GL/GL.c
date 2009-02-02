@@ -87,10 +87,41 @@ GL_initialize (JSContext* cx)
             JS_SetProperty(cx, Polygons, "Point", &property);
             property = INT_TO_JSVAL(GL_LINE);
 
+        JSObject* Buffers = JS_NewObject(cx, NULL, NULL, NULL);
+        property = OBJECT_TO_JSVAL(Buffers);
+        JS_SetProperty(cx, object, "Buffers", &property);
+            property = INT_TO_JSVAL(GL_COLOR_BUFFER_BIT);
+            JS_SetProperty(cx, Buffers, "Color", &property);
+            property = INT_TO_JSVAL(GL_DEPTH_BUFFER_BIT);
+            JS_SetProperty(cx, Buffers, "Depth", &property);
+            property = INT_TO_JSVAL(GL_ACCUM_BUFFER_BIT);
+            JS_SetProperty(cx, Buffers, "Accum", &property);
 
         return JS_TRUE;
     }
 
     return JS_FALSE;
+}
+
+JSBool
+GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    jsint bits;
+
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    glClear(bits);
+
+    return JS_TRUE;
+}
+
+JSBool
+GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    glFlush();
+    return JS_TRUE;
 }
 

@@ -33,9 +33,13 @@ static JSClass GLUT_class = {
 extern JSBool GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
+extern JSBool GLUT_swapBuffers (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 static JSFunctionSpec GLUT_methods[] = {
-    {"init",     GLUT_init,     0, 0, 0},
-    {"mainLoop", GLUT_mainLoop, 0, 0, 0},
+    {"init",            GLUT_init,     0, 0, 0},
+    {"mainLoop",        GLUT_mainLoop, 0, 0, 0},
+
+    {"swapBuffers", GLUT_swapBuffers, 0, 0, 0},
     {NULL}
 };
 

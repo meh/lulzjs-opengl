@@ -30,7 +30,12 @@ static JSClass GL_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
+extern JSBool GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 static JSFunctionSpec GL_methods[] = {
+    {"clear", GL_clear, 0, 0, 0},
+    {"flush", GL_flush, 0, 0, 0},
     {NULL}
 };
 

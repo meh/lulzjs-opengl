@@ -1,1 +1,5 @@
-Add the window.addTimer method.
+Add the window.addTimer method:
+    window.addTimer(ms, function) -> ID
+    window.delTimer(ID)
+
+    I think it's impossible lol

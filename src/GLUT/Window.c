@@ -87,8 +87,8 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
                 return JS_FALSE;
             }
             else {
-                events = parent;
                 parent = NULL;
+                JS_ValueToObject(cx, argv[1], &events);
             }
         }
         else {
@@ -169,8 +169,18 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         JS_SetProperty(cx, Size, "Width", &width);
         JS_SetProperty(cx, Size, "Height", &height);
 
-    JS_DefineProperty(cx, object, "onDisplay", JSVAL_VOID, NULL, Window_set_onDisplay, 0);
-    JS_DefineProperty(cx, object, "onOverlay", JSVAL_VOID, NULL, Window_set_onOverlay, 0);
+    JS_DefineProperty(cx, object, "onDisplay", JS_EVAL(cx, "Function.empty"), NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onOverlay", JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onIdle",    JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onResize",  JS_EVAL(cx, "Function.empty"), NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onKey",     JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onDown",    JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onUp",      JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onClick",   JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onDrag",    JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onMove",    JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onEnter",   JSVAL_VOID, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onLeave",   JSVAL_VOID, NULL, Window_setEvent, 0);
 
     glutDisplayFunc(&onDisplay);
     glutReshapeFunc(&onResize);
@@ -180,10 +190,6 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 
         JS_GetProperty(cx, events, "onDisplay", &event);
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
-            JS_SetProperty(cx, object, "onDisplay", &event);
-        }
-        else {
-            event = JS_EVAL(cx, "Function.empty");
             JS_SetProperty(cx, object, "onDisplay", &event);
         }
 
@@ -203,10 +209,6 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
             JS_SetProperty(cx, object, "onResize", &event);
         }
-        else {
-            event = JS_EVAL(cx, "Function.empty");
-            JS_SetProperty(cx, object, "onResize", &event);
-        }
 
         JS_GetProperty(cx, events, "onKey", &event);
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
@@ -219,43 +221,43 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         if (JSVAL_IS_OBJECT(event)) {
             JSObject* mouseEvent = JSVAL_TO_OBJECT(event);
 
-            JS_GetProperty(cx, events, "onDown", &event);
+            JS_GetProperty(cx, mouseEvent, "onDown", &event);
             if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
                 JS_SetProperty(cx, Mouse, "onDown", &event);
                 glutMouseFunc(&onMouseClick);
             }
 
-            JS_GetProperty(cx, events, "onUp", &event);
+            JS_GetProperty(cx, mouseEvent, "onUp", &event);
             if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
                 JS_SetProperty(cx, Mouse, "onUp", &event);
                 glutMouseFunc(&onMouseClick);
             }
 
-            JS_GetProperty(cx, events, "onClick", &event);
+            JS_GetProperty(cx, mouseEvent, "onClick", &event);
             if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
                 JS_SetProperty(cx, Mouse, "onClick", &event);
                 glutMouseFunc(&onMouseClick);
             }
 
-            JS_GetProperty(cx, events, "onDrag", &event);
+            JS_GetProperty(cx, mouseEvent, "onDrag", &event);
             if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
                 JS_SetProperty(cx, Mouse, "onDrag", &event);
                 glutMotionFunc(&onMouseDrag);
             }
 
-            JS_GetProperty(cx, events, "onMove", &event);
+            JS_GetProperty(cx, mouseEvent, "onMove", &event);
             if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
                 JS_SetProperty(cx, Mouse, "onMove", &event);
                 glutPassiveMotionFunc(&onMouseMove);
             }
 
-            JS_GetProperty(cx, events, "onLeave", &event);
+            JS_GetProperty(cx, mouseEvent, "onLeave", &event);
             if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
                 JS_SetProperty(cx, Mouse, "onLeave", &event);
                 glutEntryFunc(&onMouseEnterLeave);
             }
            
-            JS_GetProperty(cx, events, "onEnter", &event);
+            JS_GetProperty(cx, mouseEvent, "onEnter", &event);
             if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
                 JS_SetProperty(cx, Mouse, "onEnter", &event);
                 glutEntryFunc(&onMouseEnterLeave);
@@ -276,19 +278,18 @@ Window_finalize (JSContext* cx, JSObject* object)
     }
 }
 
-
 JSBool
-Window_set_onDisplay (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+Window_setEvent (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-    return JS_TRUE;
-}
+    if (JSVAL_IS_OBJECT(*vp)) {
+        if (JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(*vp))) {
+            return JS_TRUE;
+        }
+    }
 
-JSBool
-Window_set_onOverlay (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
-{
-    return JS_TRUE;
+    JS_ReportError(cx, "You have to set a function.");
+    return JS_FALSE;
 }
-
 
 void
 __Window_setWindow (JSContext* cx, int win, JSObject* Window)
