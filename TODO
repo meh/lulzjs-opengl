@@ -1,3 +1,5 @@
+Rewrite the whole stuff in GLUT/Window because it fails.
+
 Add the window.addTimer method:
     window.addTimer(ms, function) -> ID
     window.delTimer(ID)

@@ -169,18 +169,20 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         JS_SetProperty(cx, Size, "Width", &width);
         JS_SetProperty(cx, Size, "Height", &height);
 
-    JS_DefineProperty(cx, object, "onDisplay", JS_EVAL(cx, "Function.empty"), NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, object, "onOverlay", JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, object, "onIdle",    JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, object, "onResize",  JS_EVAL(cx, "Function.empty"), NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, object, "onKey",     JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, Mouse,  "onDown",    JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, Mouse,  "onUp",      JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, Mouse,  "onClick",   JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, Mouse,  "onDrag",    JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, Mouse,  "onMove",    JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, Mouse,  "onEnter",   JSVAL_VOID, NULL, Window_setEvent, 0);
-    JS_DefineProperty(cx, Mouse,  "onLeave",   JSVAL_VOID, NULL, Window_setEvent, 0);
+    jsval emptyFunction = JS_EVAL(cx, "Function.empty");
+
+    JS_DefineProperty(cx, object, "onDisplay", emptyFunction, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onOverlay", JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onIdle",    JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onResize",  emptyFunction, NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, object, "onKey",     JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onDown",    JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onUp",      JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onClick",   JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onDrag",    JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onMove",    JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onEnter",   JSVAL_VOID,    NULL, Window_setEvent, 0);
+    JS_DefineProperty(cx, Mouse,  "onLeave",   JSVAL_VOID,    NULL, Window_setEvent, 0);
 
     glutDisplayFunc(&onDisplay);
     glutReshapeFunc(&onResize);
@@ -188,11 +190,20 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     if (events) {
         jsval event;
 
-        JS_GetProperty(cx, events, "onDisplay", &event);
-        if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
-            JS_SetProperty(cx, object, "onDisplay", &event);
-        }
+        char *eventNames[] = {
+            "onDisplay", "onOverlay", "onIdle", "onResize", "onKey", // Window
+            "onDown", "onUp", "onClick", "onDrag", "onMove", "onEnter", "onLeave" // Window.Mouse
+        };
 
+        unsigned i;
+        for (i = 0; i < sizeof(eventNames); i++) {
+            JS_GetProperty(cx, events, eventNames[i], &event);
+            if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
+                printf("%s\n", eventNames[i]);
+                JS_SetProperty(cx, object, eventNames[i], &event);
+            }
+        }
+/*
         JS_GetProperty(cx, events, "onOverlay", &event);
         if (JSVAL_IS_OBJECT(event) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(event))) {
             JS_SetProperty(cx, object, "onOverlay", &event);
@@ -263,9 +274,8 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
                 glutEntryFunc(&onMouseEnterLeave);
             }
         }
+*/
     }
-
-    puts("4");
 
     return JS_TRUE;
 }
@@ -283,10 +293,26 @@ Window_finalize (JSContext* cx, JSObject* object)
 JSBool
 Window_setEvent (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
+    jsval lol;
+    JS_IdToValue(cx, id, &lol);
+
+    if (JSVAL_IS_VOID(lol)) puts("VOID");
+    if (JSVAL_IS_NULL(lol)) puts("NULL");
+    if (JSVAL_IS_OBJECT(lol)) puts("OBJECT");
+    if (JSVAL_IS_STRING(lol)) puts("STRING");
+
+    JSString* string = JS_ValueToString(cx, lol);
+    puts(":O");
+
+    printf("%s\n", JS_GetStringBytes(JS_ValueToString(cx, lol)));
+
     if (JSVAL_IS_OBJECT(*vp)) {
         if (JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(*vp))) {
             return JS_TRUE;
         }
+    }
+    else if (JSVAL_IS_NULL(*vp) || JSVAL_IS_VOID(*vp)) {
+
     }
 
     JS_ReportError(cx, "You have to set a function.");
