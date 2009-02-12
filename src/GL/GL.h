@@ -16,13 +16,13 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#ifndef _LULZJS_NCURSES_H
-#define _LULZJS_NCURSES_H
+#ifndef _LULZJS_OPENGL_GL_H
+#define _LULZJS_OPENGL_GL_H
 
 #include "common.h"
 
-extern JSBool exec (JSContext* cx);
-extern JSBool GL_initialize (JSContext* cx);
+extern "C" JSBool exec (JSContext* cx);
+JSBool GL_initialize (JSContext* cx);
 
 static JSClass GL_class = {
     "GL", 0,
@@ -30,15 +30,17 @@ static JSClass GL_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-extern JSBool GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool GL_begin (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool GL_end (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_begin (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_end (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool GL_normal (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool GL_vertex (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_loadIdentity (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+JSBool GL_normal (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_vertex (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec GL_methods[] = {
     {"clear", GL_clear, 0, 0, 0},

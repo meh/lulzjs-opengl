@@ -16,33 +16,34 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#ifndef _LULZJS_OPENGL_GLUT_H
-#define _LULZJS_OPENGL_GLUT_H
+#include "GLU.h"
 
-#include "common.h"
+JSBool exec (JSContext* cx) { return GLU_initialize(cx); }
 
-extern "C" JSBool exec (JSContext* cx);
-JSBool GLUT_initialize (JSContext* cx);
+JSBool
+GLU_initialize (JSContext* cx)
+{
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
-static JSClass GLUT_class = {
-    "GLUT", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
+    jsval jsParent;
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "OpenGL", &jsParent);
+    JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
-JSBool GLUT_KeyF (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+    JSObject* object = JS_DefineObject(
+        cx, parent,
+        GLU_class.name, &GLU_class, NULL, 
+        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
+    );
 
-JSBool GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-JSBool GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+    if (object) {
+        JS_DefineFunctions(cx, object, GLU_methods);
 
-JSBool GLUT_swapBuffers (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_TRUE;
+    }
 
-static JSFunctionSpec GLUT_methods[] = {
-    {"init",            GLUT_init,     0, 0, 0},
-    {"mainLoop",        GLUT_mainLoop, 0, 0, 0},
+    return JS_FALSE;
+}
 
-    {"swapBuffers", GLUT_swapBuffers, 0, 0, 0},
-    {NULL}
-};
-
-#endif

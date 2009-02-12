@@ -16,33 +16,6 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#ifndef _LULZJS_OPENGL_GLUT_H
-#define _LULZJS_OPENGL_GLUT_H
+Object.extend(OpenGL, {
 
-#include "common.h"
-
-extern "C" JSBool exec (JSContext* cx);
-JSBool GLUT_initialize (JSContext* cx);
-
-static JSClass GLUT_class = {
-    "GLUT", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
-};
-
-JSBool GLUT_KeyF (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-JSBool GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-JSBool GLUT_mainLoop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-JSBool GLUT_swapBuffers (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-static JSFunctionSpec GLUT_methods[] = {
-    {"init",            GLUT_init,     0, 0, 0},
-    {"mainLoop",        GLUT_mainLoop, 0, 0, 0},
-
-    {"swapBuffers", GLUT_swapBuffers, 0, 0, 0},
-    {NULL}
-};
-
-#endif
+});

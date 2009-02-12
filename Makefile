@@ -16,7 +16,7 @@ CFLAGS += -DDEBUG -g -Wall
 endif
 
 LIB_DIR     = src
-LIB         = ${LIB_DIR}/OpenGL.o ${LIB_DIR}/GL/GL.o ${LIB_DIR}/GLUT/GLUT.o ${LIB_DIR}/GLUT/Window.o
+LIB         = ${LIB_DIR}/OpenGL.o ${LIB_DIR}/GL/GL.o ${LIB_DIR}/GLU/GLU.o ${LIB_DIR}/GLUT/GLUT.o ${LIB_DIR}/GLUT/Window.o
 LIB_CFLAGS  = ${CFLAGS}
 LIB_LDFLAGS = ${LDFLAGS} -lX11 -lXi -lXmu -lglut -lGL -lGLU -lm 
 
@@ -24,13 +24,14 @@ all: lib
 
 lib: $(LIB)
 
-$(LIB) : $(LIB:.o=.c)
-	${CC} ${LIB_CFLAGS} -fPIC -c $*.c -o $*.lo
-	${CC} ${LIB_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
+$(LIB) : $(LIB:.o=.cpp)
+	${CXX} ${LIB_CFLAGS} -fPIC -c $*.cpp -o $*.lo
+	${CXX} ${LIB_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
 lib_install: lib
 	mkdir -p ${LJS_LIBDIR}/OpenGL
 	mkdir -p ${LJS_LIBDIR}/OpenGL/GL
+	mkdir -p ${LJS_LIBDIR}/OpenGL/GLU
 	mkdir -p ${LJS_LIBDIR}/OpenGL/GLUT
 ########
 	cp -f  ${LIB_DIR}/init.js			${LJS_LIBDIR}/OpenGL/init.js
@@ -40,6 +41,10 @@ lib_install: lib
 	cp -f  ${LIB_DIR}/GL/init.js		${LJS_LIBDIR}/OpenGL/GL/init.js
 	cp -f  ${LIB_DIR}/GL/GL.o			${LJS_LIBDIR}/OpenGL/GL/GL.so
 	cp -f  ${LIB_DIR}/GL/GL.js			${LJS_LIBDIR}/OpenGL/GL/GL.js
+########
+	cp -f  ${LIB_DIR}/GLU/init.js		${LJS_LIBDIR}/OpenGL/GLU/init.js
+	cp -f  ${LIB_DIR}/GLU/GLU.o			${LJS_LIBDIR}/OpenGL/GLU/GLU.so
+	cp -f  ${LIB_DIR}/GLU/GLU.js		${LJS_LIBDIR}/OpenGL/GLU/GLU.js
 ########
 	cp -f  ${LIB_DIR}/GLUT/init.js		${LJS_LIBDIR}/OpenGL/GLUT/init.js
 	cp -f  ${LIB_DIR}/GLUT/GLUT.o		${LJS_LIBDIR}/OpenGL/GLUT/GLUT.so

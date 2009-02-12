@@ -20,20 +20,24 @@
 #define _LULZJS_OPENGL_GLUT_WINDOW_H
 
 #include "common.h"
+#include <map>
+#include <vector>
 
-extern JSBool exec (JSContext* cx);
-extern JSBool Window_initialize (JSContext* cx);
+std::map<int, JSObject*> windows;
 
-extern JSBool Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern void   Window_finalize (JSContext* cx, JSObject* object);
+extern "C" JSBool exec (JSContext* cx);
+JSBool Window_initialize (JSContext* cx);
+
+JSBool Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+void   Window_finalize (JSContext* cx, JSObject* object);
 
 static JSClass Window_class = {
-    "Window", 0,
+    "Window", JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Window_finalize
 };
 
-extern JSBool Window_setEvent (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSBool Window_setEvent (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
 
 static JSFunctionSpec Window_methods[] = {
     {NULL}

@@ -16,13 +16,13 @@
 * along with lulzJS-OpenGL.  If not, see <http://www.gnu.org/licenses/>.    *
 ****************************************************************************/
 
-#ifndef _LULZJS_NCURSES_H
-#define _LULZJS_NCURSES_H
+#ifndef _LULZJS_OPENGL_H
+#define _LULZJS_OPENGL_H
 
 #include "common.h"
 
-extern JSBool exec (JSContext* cx);
-extern JSBool OpenGL_initialize (JSContext* cx);
+extern "C" JSBool exec (JSContext* cx);
+JSBool OpenGL_initialize (JSContext* cx);
 
 static JSClass OpenGL_class = {
     "OpenGL", 0,

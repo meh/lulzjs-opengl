@@ -144,9 +144,12 @@ JSBool
 GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     JSObject* arguments;
-    jsint     bits = 0;
+    int32     bits = 0;
 
-    if (argc < 2 || !JS_ConvertArguments(cx, argc, argv, "oi", &arguments)) {
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
+    if (argc < 2 || !JS_ConvertArguments(cx, argc, argv, "oi", &arguments, &bits)) {
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
@@ -157,19 +160,26 @@ GLUT_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval
     }
 
     jsuint length; JS_GetArrayLength(cx, arguments, &length);
-    char** array = JS_malloc(cx, length*sizeof(char*));
+    char** array = new char*[length];
 
     jsuint i;
     for (i = 0; i < length; i++) {
         jsval val; JS_GetElement(cx, arguments, i, &val);
-        array[i] = JS_strdup(cx, JS_GetStringBytes(JS_ValueToString(cx, val)));
+        array[i] = strdup(JS_GetStringBytes(JS_ValueToString(cx, val)));
     }
 
     glutInit((int*)&length, array);
+    for (i = 0; i < length; i++) {
+        free(array[i]);
+    }
+    delete array;
     glutInitDisplayMode(bits);
 
     jsval inited = JSVAL_TRUE;
     JS_SetProperty(cx, object, "inited", &inited);
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 
     return JS_TRUE;
 }
