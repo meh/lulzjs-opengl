@@ -38,6 +38,12 @@ GL_initialize (JSContext* cx)
 
         jsval property;
 
+        JSObject* Capabilities = JS_NewObject(cx, NULL, NULL, NULL);
+        property = OBJECT_TO_JSVAL(Capabilities);
+        JS_SetProperty(cx, object, "Capabilities", &property);
+            property = INT_TO_JSVAL(GL_DEPTH_TEST);
+            JS_SetProperty(cx, Capabilities, "DepthTest", &property);
+
         JSObject* Primitives = JS_NewObject(cx, NULL, NULL, NULL);
         property = OBJECT_TO_JSVAL(Primitives);
         JS_SetProperty(cx, object, "Primitives", &property);
@@ -104,14 +110,37 @@ GL_initialize (JSContext* cx)
 }
 
 JSBool
+GL_enable (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    jsint bits;
+
+    JS_BeginRequest(cx);
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+    JS_EndRequest(cx);
+
+    glEnable(bits);
+   
+    return JS_TRUE;
+}
+
+JSBool
 GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     jsint bits;
 
+    JS_BeginRequest(cx);
     if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
         JS_ReportError(cx, "Not enough parameters.");
+
+        JS_EndRequest(cx);
         return JS_FALSE;
     }
+    JS_EndRequest(cx);
 
     glClear(bits);
 
@@ -123,10 +152,14 @@ GL_begin (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     jsint bits;
 
+    JS_BeginRequest(cx);
     if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
         JS_ReportError(cx, "Not enough parameters.");
+
+        JS_EndRequest(cx);
         return JS_FALSE;
     }
+    JS_EndRequest(cx);
 
     glBegin(bits);
 
@@ -159,7 +192,273 @@ JSBool
 GL_normal (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     JSObject* array;
-    jsdouble x, y, z;
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsuint length;
+    JS_GetArrayLength(cx, array, &length);
+
+    if (length != 3) {
+        JS_ReportError(cx, "Wrong number of values.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsval jsX, jsY, jsZ;
+    JS_GetElement(cx, array, 0, &jsX);
+    JS_GetElement(cx, array, 1, &jsY);
+    JS_GetElement(cx, array, 2, &jsZ);
+
+    if (JSVAL_IS_DOUBLE(jsX) || JSVAL_IS_DOUBLE(jsY) || JSVAL_IS_DOUBLE(jsZ)) {
+        jsdouble x, y, z;
+        JS_ValueToNumber(cx, jsX, &x);
+        JS_ValueToNumber(cx, jsY, &y);
+        JS_ValueToNumber(cx, jsZ, &z);
+
+        glNormal3d(x, y, z);
+    }
+    else {
+        int32 x, y, z;
+        JS_ValueToInt32(cx, jsX, &x);
+        JS_ValueToInt32(cx, jsY, &y);
+        JS_ValueToInt32(cx, jsZ, &z);
+
+        glNormal3i(x, y, z);
+    }
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+    return JS_TRUE;
+}
+
+JSBool
+GL_vertex (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* array;
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsuint length;
+    JS_GetArrayLength(cx, array, &length);
+
+    if (length < 2 || length > 4) {
+        JS_ReportError(cx, "Wrong number of values.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsval jsX, jsY, jsZ = JSVAL_VOID, jsW = JSVAL_VOID;
+
+    switch (length) {
+        case 4:
+        JS_GetElement(cx, array, 3, &jsW);
+
+        case 3:
+        JS_GetElement(cx, array, 2, &jsZ);
+
+        case 2:
+        JS_GetElement(cx, array, 1, &jsY);
+        JS_GetElement(cx, array, 0, &jsX);
+    }
+
+    if (JSVAL_IS_DOUBLE(jsX) || JSVAL_IS_DOUBLE(jsY) || JSVAL_IS_DOUBLE(jsZ) || JSVAL_IS_DOUBLE(jsW)) {
+        jsdouble x, y, z, w;
+
+        switch (length) {
+            case 4:
+            JS_ValueToNumber(cx, jsW, &w);
+
+            case 3:
+            JS_ValueToNumber(cx, jsZ, &z);
+
+            case 2:
+            JS_ValueToNumber(cx, jsY, &y);
+            JS_ValueToNumber(cx, jsX, &x);
+        }
+
+        switch (length) {
+            case 2: glVertex2d(x, y); break;
+            case 3: glVertex3d(x, y, z); break;
+            case 4: glVertex4d(x, y, z, w); break;
+        }
+    }
+    else {
+        int32 x, y, z, w;
+
+        switch (length) {
+            case 4:
+            JS_ValueToInt32(cx, jsW, &w);
+
+            case 3:
+            JS_ValueToInt32(cx, jsZ, &z);
+
+            case 2:
+            JS_ValueToInt32(cx, jsY, &y);
+            JS_ValueToInt32(cx, jsX, &x);
+        }
+
+        switch (length) {
+            case 2: glVertex2i(x, y); break;
+            case 3: glVertex3i(x, y, z); break;
+            case 4: glVertex4i(x, y, z, w); break;
+        }
+    }
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+    return JS_TRUE;
+}
+
+JSBool
+GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* array;
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsuint length;
+    JS_GetArrayLength(cx, array, &length);
+
+    if (length < 3 || length > 4) {
+        JS_ReportError(cx, "Wrong number of values.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsval jsR, jsG, jsB, jsAlpha = JSVAL_VOID;
+
+    switch (length) {
+        case 4:
+        JS_GetElement(cx, array, 3, &jsAlpha);
+
+        case 3:
+        JS_GetElement(cx, array, 2, &jsB);
+        JS_GetElement(cx, array, 1, &jsG);
+        JS_GetElement(cx, array, 0, &jsR);
+    }
+
+    if (JSVAL_IS_DOUBLE(jsR) || JSVAL_IS_DOUBLE(jsG) || JSVAL_IS_DOUBLE(jsB) || JSVAL_IS_VOID(jsAlpha)) {
+        jsdouble r, g, b, alpha;
+
+        switch (length) {
+            case 4:
+            JS_ValueToNumber(cx, jsAlpha, &alpha);
+
+            case 3:
+            JS_ValueToNumber(cx, jsB, &b);
+            JS_ValueToNumber(cx, jsG, &g);
+            JS_ValueToNumber(cx, jsR, &r);
+        }
+
+        switch (length) {
+            case 3: glColor3d(r, g, b); break;
+            case 4: glColor4d(r, g, b, alpha); break;
+        }
+    }
+    else {
+        int32 r, g, b, alpha;
+
+        switch (length) {
+            case 4:
+            JS_ValueToInt32(cx, jsAlpha, &alpha);
+
+            case 3:
+            JS_ValueToInt32(cx, jsB, &b);
+            JS_ValueToInt32(cx, jsG, &g);
+            JS_ValueToInt32(cx, jsR, &r);
+        }
+
+        switch (length) {
+            case 3: glColor3i(r, g, b); break;
+            case 4: glColor4i(r, g, b, alpha); break;
+        }
+    }
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+
+    return JS_TRUE;
+}
+
+JSBool
+GL_rotate (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* array;
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsuint length;
+    JS_GetArrayLength(cx, array, &length);
+
+    if (length != 4) {
+        JS_ReportError(cx, "Wrong number of values.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsval element;
+    jsdouble angle, x, y, z;
+
+    JS_GetElement(cx, array, 0, &element); JS_ValueToNumber(cx, element, &angle);
+    JS_GetElement(cx, array, 1, &element); JS_ValueToNumber(cx, element, &x);
+    JS_GetElement(cx, array, 2, &element); JS_ValueToNumber(cx, element, &y);
+    JS_GetElement(cx, array, 3, &element); JS_ValueToNumber(cx, element, &z);
+
+    glRotated(angle, x, y, z);
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+    return JS_TRUE;
+}
+
+JSBool
+GL_translate (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* array;
 
     JS_BeginRequest(cx);
     JS_EnterLocalRootScope(cx);
@@ -184,118 +483,16 @@ GL_normal (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval
     }
 
     jsval element;
+    jsdouble x, y, z;
+
     JS_GetElement(cx, array, 0, &element); JS_ValueToNumber(cx, element, &x);
     JS_GetElement(cx, array, 1, &element); JS_ValueToNumber(cx, element, &y);
     JS_GetElement(cx, array, 2, &element); JS_ValueToNumber(cx, element, &z);
 
-    glNormal3d(x, y, z);
+    glTranslated(x, y, z);
 
     JS_LeaveLocalRootScope(cx);
     JS_EndRequest(cx);
-    return JS_TRUE;
-}
-
-JSBool
-GL_vertex (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    JSObject* array;
-    jsdouble x, y, z, w;
-
-    JS_BeginRequest(cx);
-    JS_EnterLocalRootScope(cx);
-
-    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
-        JS_ReportError(cx, "Not enough parameters.");
-
-        JS_LeaveLocalRootScope(cx);
-        JS_EndRequest(cx);
-        return JS_FALSE;
-    }
-
-    jsuint length;
-    JS_GetArrayLength(cx, array, &length);
-
-    if (length < 2 || length > 4) {
-        JS_ReportError(cx, "Wrong number of values.");
-
-        JS_LeaveLocalRootScope(cx);
-        JS_EndRequest(cx);
-        return JS_FALSE;
-    }
-
-    jsval element;
-
-    switch (length) {
-        case 4:
-        JS_GetElement(cx, array, 3, &element); JS_ValueToNumber(cx, element, &w);
-
-        case 3:
-        JS_GetElement(cx, array, 2, &element); JS_ValueToNumber(cx, element, &z);
-
-        case 2:
-        JS_GetElement(cx, array, 1, &element); JS_ValueToNumber(cx, element, &y);
-        JS_GetElement(cx, array, 0, &element); JS_ValueToNumber(cx, element, &x);
-    }
-
-    switch (length) {
-        case 2: glVertex2d(x, y); break;
-        case 3: glVertex3d(x, y, z); break;
-        case 4: glVertex4d(x, y, z, w); break;
-    }
-
-    JS_LeaveLocalRootScope(cx);
-    JS_EndRequest(cx);
-    return JS_TRUE;
-}
-
-JSBool
-GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
-{
-    JSObject* array;
-    int32 r, g, b, alpha;
-
-    JS_BeginRequest(cx);
-    JS_EnterLocalRootScope(cx);
-
-    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &array)) {
-        JS_ReportError(cx, "Not enough parameters.");
-
-        JS_LeaveLocalRootScope(cx);
-        JS_EndRequest(cx);
-        return JS_FALSE;
-    }
-
-    jsuint length;
-    JS_GetArrayLength(cx, array, &length);
-
-    if (length < 3 || length > 4) {
-        JS_ReportError(cx, "Wrong number of values.");
-
-        JS_LeaveLocalRootScope(cx);
-        JS_EndRequest(cx);
-        return JS_FALSE;
-    }
-
-    jsval element;
-
-    switch (length) {
-        case 4:
-        JS_GetElement(cx, array, 3, &element); JS_ValueToInt32(cx, element, &alpha);
-
-        case 3:
-        JS_GetElement(cx, array, 2, &element); JS_ValueToInt32(cx, element, &b);
-        JS_GetElement(cx, array, 1, &element); JS_ValueToInt32(cx, element, &g);
-        JS_GetElement(cx, array, 0, &element); JS_ValueToInt32(cx, element, &r);
-    }
-
-    switch (length) {
-        case 3: glColor3i(r, g, b); break;
-        case 4: glColor4i(r, g, b, alpha); break;
-    }
-
-    JS_LeaveLocalRootScope(cx);
-    JS_EndRequest(cx);
-
     return JS_TRUE;
 }
 

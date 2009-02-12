@@ -30,7 +30,10 @@ static JSClass GLU_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
+JSBool GLU_lookAt (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 static JSFunctionSpec GLU_methods[] = {
+    {"lookAt", GLU_lookAt, 0, 0, 0},
     {NULL}
 };
 

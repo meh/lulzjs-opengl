@@ -8,15 +8,17 @@ GLUT.init(arguments, GLUT.DisplayModes.Double|GLUT.DisplayModes.RGB|GLUT.Display
 var window = new GLUT.Window({title: "lulzJS OpenGL test", width: 640, height: 480}, {
     onDisplay: function () {
         GL.clear(GL.Buffers.Color|GL.Buffers.Depth);
+        GL.loadIdentity();
 
-        GL.begin(GL.Primitives.Polygon);
-            GL.vertex([-1.0, -1.0, -1.0]);
-            GL.vertex([-1.0,  1.0, -1.0]);
-            GL.vertex([ 1.0,  1.0, -1.0]);
-            GL.vertex([ 1.0, -1.0, -1.0]);
+        GL.translate([-1.5, 0.0, -6.0]);
+
+        GL.begin(GL.Primitives.Quad);
+            GL.vertex([-1.0, 1.0, 0.0]);
+            GL.vertex([ 1.0, 1.0, 0.0]);
+            GL.vertex([ 1.0,-1.0, 0.0]);
+            GL.vertex([-1.0,-1.0, 0.0]);
         GL.end();
 
-        GL.flush();
         GLUT.swapBuffers();
     },
 
@@ -32,5 +34,7 @@ var window = new GLUT.Window({title: "lulzJS OpenGL test", width: 640, height: 4
         }
     }
 });
+
+GL.enable(GL.Capabilities.DepthTest);
 
 GLUT.mainLoop();

@@ -100,6 +100,16 @@ GLUT_initialize (JSContext* cx)
             property = INT_TO_JSVAL(127);
             JS_SetProperty(cx, Keys, "Delete", &property);
 
+        JSObject* Mouse = JS_NewObject(cx, NULL, NULL, NULL);
+        property = OBJECT_TO_JSVAL(Mouse);
+        JS_SetProperty(cx, object, "Mouse", &property);
+            property = INT_TO_JSVAL(GLUT_LEFT_BUTTON);
+            JS_SetProperty(cx, Mouse, "Left", &property);
+            property = INT_TO_JSVAL(GLUT_MIDDLE_BUTTON);
+            JS_SetProperty(cx, Mouse, "Middle", &property);
+            property = INT_TO_JSVAL(GLUT_RIGHT_BUTTON);
+            JS_SetProperty(cx, Mouse, "Right", &property);
+
         return JS_TRUE;
     }
 

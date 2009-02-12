@@ -30,6 +30,8 @@ static JSClass GL_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
+JSBool GL_enable (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
 JSBool GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
@@ -38,20 +40,30 @@ JSBool GL_end (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
 JSBool GL_loadIdentity (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
+JSBool GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool GL_normal (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool GL_vertex (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-JSBool GL_color (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+
+JSBool GL_rotate (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_translate (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec GL_methods[] = {
+    {"enable", GL_enable, 0, 0, 0},
+
     {"clear", GL_clear, 0, 0, 0},
     {"flush", GL_flush, 0, 0, 0},
+
+    {"loadIdentity", GL_loadIdentity, 0, 0, 0},
 
     {"begin", GL_begin, 0, 0, 0},
     {"end",   GL_end,   0, 0, 0},
 
+    {"color",  GL_color,  0, 0, 0},
     {"normal", GL_normal, 0, 0, 0},
     {"vertex", GL_vertex, 0, 0, 0},
-    {"color",  GL_color,  0, 0, 0},
+
+    {"rotate", GL_rotate, 0, 0, 0},
+    {"translate", GL_translate, 0, 0, 0},
     {NULL}
 };
 

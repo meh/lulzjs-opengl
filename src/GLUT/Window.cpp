@@ -314,6 +314,10 @@ void onDisplay (void)
     jsval jsFunc; JS_GetProperty(actualContext, actualWindow, "onDisplay", &jsFunc);
     jsval ret;
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 void onOverlay (void)
@@ -322,6 +326,10 @@ void onOverlay (void)
 
     jsval ret;
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 void onIdle (void)
@@ -329,6 +337,10 @@ void onIdle (void)
     jsval jsFunc; JS_GetProperty(actualContext, actualWindow, "onIdle", &jsFunc);
     jsval ret;
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 void onResize (int width, int height)
@@ -345,6 +357,10 @@ void onResize (int width, int height)
     jsval ret;
     jsval argv[] = {INT_TO_JSVAL(width), INT_TO_JSVAL(height)};
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 2, argv, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 void onKey (unsigned char key, int x, int y)
@@ -354,6 +370,10 @@ void onKey (unsigned char key, int x, int y)
     jsval ret;
     jsval argv[] = {INT_TO_JSVAL(key), INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 void onSpecialKey (int key, int x, int y)
@@ -363,6 +383,10 @@ void onSpecialKey (int key, int x, int y)
     jsval ret;
     jsval argv[] = {INT_TO_JSVAL(key), INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 
@@ -379,6 +403,10 @@ void onMouseClick (int button, int state, int x, int y)
         if (mouse[DOWN]) {
             JS_GetProperty(actualContext, Mouse, "onDown", &jsFunc);
             JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+
+            if (JS_IsExceptionPending(actualContext)) {
+                JS_ReportPendingException(actualContext);
+            }
         }
         break;
 
@@ -386,11 +414,19 @@ void onMouseClick (int button, int state, int x, int y)
         if (mouse[UP]) {
             JS_GetProperty(actualContext, Mouse, "onUp", &jsFunc);
             JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+
+            if (JS_IsExceptionPending(actualContext)) {
+                JS_ReportPendingException(actualContext);
+            }
         }
 
         if (mouse[CLICK]) {
             JS_GetProperty(actualContext, Mouse, "onClick", &jsFunc);
             JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 3, argv, &ret);
+
+            if (JS_IsExceptionPending(actualContext)) {
+                JS_ReportPendingException(actualContext);
+            }
         }
         break;
     }
@@ -406,6 +442,10 @@ void onMouseDrag (int x, int y)
     jsval ret;
     jsval argv[] = {INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 2, argv, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 void onMouseMove (int x, int y)
@@ -418,6 +458,10 @@ void onMouseMove (int x, int y)
     jsval ret;
     jsval argv[] = {INT_TO_JSVAL(x), INT_TO_JSVAL(y)};
     JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 2, argv, &ret);
+
+    if (JS_IsExceptionPending(actualContext)) {
+        JS_ReportPendingException(actualContext);
+    }
 }
 
 void onMouseEnterLeave (int state)
@@ -432,6 +476,10 @@ void onMouseEnterLeave (int state)
         if (mouse[LEAVE]) {
             JS_GetProperty(actualContext, Mouse, "onLeave", &jsFunc);
             JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+
+            if (JS_IsExceptionPending(actualContext)) {
+                JS_ReportPendingException(actualContext);
+            }
         }
         break;
 
@@ -439,6 +487,10 @@ void onMouseEnterLeave (int state)
         if (mouse[ENTER]) {
             JS_GetProperty(actualContext, Mouse, "onEnter", &jsFunc);
             JS_CallFunctionValue(actualContext, actualWindow, jsFunc, 0, NULL, &ret);
+
+            if (JS_IsExceptionPending(actualContext)) {
+                JS_ReportPendingException(actualContext);
+            }
         }
         break;
     }

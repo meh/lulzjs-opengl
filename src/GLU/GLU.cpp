@@ -47,3 +47,107 @@ GLU_initialize (JSContext* cx)
     return JS_FALSE;
 }
 
+JSBool
+GLU_lookAt (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* arrays;
+    JSObject* eye;
+    JSObject* center;
+    JSObject* up;
+    jsdouble eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ;
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &arrays)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsval property;
+
+    JS_GetProperty(cx, arrays, "eye", &property);
+    if (!JSVAL_IS_OBJECT(property)) {
+        JS_GetProperty(cx, arrays, "Eye", &property);
+
+        if (JSVAL_IS_OBJECT(property)) {
+            JS_ValueToObject(cx, property, &eye);
+        }
+        else {
+            jsval eles[] = {INT_TO_JSVAL(0), INT_TO_JSVAL(0), INT_TO_JSVAL(0)};
+            eye          = JS_NewArrayObject(cx, 3, eles);
+        }
+    }
+    else {
+        JS_ValueToObject(cx, property, &eye);
+    }
+
+    JS_GetProperty(cx, arrays, "center", &property);
+    if (!JSVAL_IS_OBJECT(property)) {
+        JS_GetProperty(cx, arrays, "Center", &property);
+
+        if (JSVAL_IS_OBJECT(property)) {
+            JS_ValueToObject(cx, property, &center);
+        }
+        else {
+            jsval eles[] = {INT_TO_JSVAL(0), INT_TO_JSVAL(0), INT_TO_JSVAL(0)};
+            center       = JS_NewArrayObject(cx, 3, eles);
+        }
+    }
+    else {
+        JS_ValueToObject(cx, property, &center);
+    }
+
+    JS_GetProperty(cx, arrays, "center", &property);
+    if (!JSVAL_IS_OBJECT(property)) {
+        JS_GetProperty(cx, arrays, "Center", &property);
+
+        if (JSVAL_IS_OBJECT(property)) {
+            JS_ValueToObject(cx, property, &up);
+        }
+        else {
+            jsval eles[] = {INT_TO_JSVAL(0), INT_TO_JSVAL(0), INT_TO_JSVAL(0)};
+            up           = JS_NewArrayObject(cx, 3, eles);
+        }
+    }
+    else {
+        JS_ValueToObject(cx, property, &up);
+    }
+
+    jsuint eyeLength, centerLength, upLength;
+    JS_GetArrayLength(cx, eye, &eyeLength);
+    JS_GetArrayLength(cx, center, &centerLength);
+    JS_GetArrayLength(cx, up, &upLength);
+
+    if (eyeLength != 3 || centerLength != 3 || upLength != 3) {
+        JS_ReportError(cx, "Wrong number of values.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsval element;
+
+    JS_GetElement(cx, eye, 0, &element); JS_ValueToNumber(cx, element, &eyeX);
+    JS_GetElement(cx, eye, 1, &element); JS_ValueToNumber(cx, element, &eyeY);
+    JS_GetElement(cx, eye, 2, &element); JS_ValueToNumber(cx, element, &eyeZ);
+
+    JS_GetElement(cx, center, 0, &element); JS_ValueToNumber(cx, element, &centerX);
+    JS_GetElement(cx, center, 1, &element); JS_ValueToNumber(cx, element, &centerY);
+    JS_GetElement(cx, center, 2, &element); JS_ValueToNumber(cx, element, &centerZ);
+
+    JS_GetElement(cx, up, 0, &element); JS_ValueToNumber(cx, element, &upX);
+    JS_GetElement(cx, up, 1, &element); JS_ValueToNumber(cx, element, &upY);
+    JS_GetElement(cx, up, 2, &element); JS_ValueToNumber(cx, element, &upZ);
+
+    gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+    return JS_TRUE;
+}
+
