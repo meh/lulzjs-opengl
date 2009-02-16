@@ -124,9 +124,55 @@ GL_enable (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval
     JS_EndRequest(cx);
 
     glEnable(bits);
+
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_ENUM:      errorText = "The value isn't accepted."; break;
+            case GL_INVALID_OPERATION: errorText = "You can't call GL.enable between GL.begin and GL.end."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
    
     return JS_TRUE;
 }
+
+JSBool
+GL_disable (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    jsint bits;
+
+    JS_BeginRequest(cx);
+    if (argc != 1 || !JS_ConvertArguments(cx, argc, argv, "i", &bits)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+    JS_EndRequest(cx);
+
+    glDisable(bits);
+
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_ENUM:      errorText = "The value isn't accepted."; break;
+            case GL_INVALID_OPERATION: errorText = "You can't call GL.disable between GL.begin and GL.end."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
+   
+    return JS_TRUE;
+}
+
 
 JSBool
 GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
@@ -143,6 +189,19 @@ GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
     JS_EndRequest(cx);
 
     glClear(bits);
+
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_VALUE:     errorText = "The value isn't accepted."; break;
+            case GL_INVALID_OPERATION: errorText = "You can't call GL.clear between GL.begin and GL.end."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
 
     return JS_TRUE;
 }
@@ -163,6 +222,19 @@ GL_begin (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 
     glBegin(bits);
 
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_ENUM:      errorText = "It's not an accepted value."; break;
+            case GL_INVALID_OPERATION: errorText = "There's already a begin in execution."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
+
     return JS_TRUE;
 }
 
@@ -170,6 +242,19 @@ JSBool
 GL_end (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     glEnd();
+
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_OPERATION: errorText = "There's no begin executed."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
+
     return JS_TRUE;
 }
 
@@ -177,6 +262,19 @@ JSBool
 GL_loadIdentity (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     glLoadIdentity();
+
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_OPERATION: errorText = "You can't call GL.loadIdentity between GL.begin and GL.end."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
+
     return JS_TRUE;
 }
 
@@ -185,6 +283,19 @@ JSBool
 GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     glFlush();
+
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_OPERATION: errorText = "You can't call GL.flush between GL.begin and GL.end."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
+
     return JS_TRUE;
 }
 
@@ -450,6 +561,19 @@ GL_rotate (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval
 
     glRotated(angle, x, y, z);
 
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_OPERATION: errorText = "You can't call GL.rotate between GL.begin and GL.end."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
+
+
     JS_LeaveLocalRootScope(cx);
     JS_EndRequest(cx);
     return JS_TRUE;
@@ -490,6 +614,18 @@ GL_translate (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* r
     JS_GetElement(cx, array, 2, &element); JS_ValueToNumber(cx, element, &z);
 
     glTranslated(x, y, z);
+
+    GLenum error = glGetError();
+    if (error) {
+        std::string errorText;
+
+        switch (error) {
+            case GL_INVALID_OPERATION: errorText = "You can't call GL.translate between GL.begin and GL.end."; break;
+        }
+
+        JS_ReportError(cx, (char*) errorText.c_str());
+        return JS_FALSE;
+    }
 
     JS_LeaveLocalRootScope(cx);
     JS_EndRequest(cx);

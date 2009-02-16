@@ -31,6 +31,7 @@ static JSClass GL_class = {
 };
 
 JSBool GL_enable (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool GL_disable (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 JSBool GL_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool GL_flush (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
@@ -49,6 +50,7 @@ JSBool GL_translate (JSContext* cx, JSObject* object, uintN argc, jsval* argv, j
 
 static JSFunctionSpec GL_methods[] = {
     {"enable", GL_enable, 0, 0, 0},
+    {"disable", GL_disable, 0, 0, 0},
 
     {"clear", GL_clear, 0, 0, 0},
     {"flush", GL_flush, 0, 0, 0},

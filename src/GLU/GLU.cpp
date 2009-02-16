@@ -48,6 +48,56 @@ GLU_initialize (JSContext* cx)
 }
 
 JSBool
+GLU_perspective (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* perspective;
+    jsdouble fovy, aspect, zNear, zFar;
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
+    if (argc < 1 || !JS_ConvertArguments(cx, argc, argv, "o", &perspective)) {
+        JS_ReportError(cx, "Not enough parameters.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
+        return JS_FALSE;
+    }
+
+    jsval property;
+
+    JS_GetProperty(cx, perspective, "field", &property);
+    if (!JSVAL_IS_NUMBER(property)) {
+        JS_GetProperty(cx, perspective, "Field", &property);
+    }
+    JS_ValueToNumber(cx, property, &fovy);
+
+    JS_GetProperty(cx, perspective, "aspect", &property);
+    if (!JSVAL_IS_NUMBER(property)) {
+        JS_GetProperty(cx, perspective, "Aspect", &property);
+    }
+    JS_ValueToNumber(cx, property, &aspect);
+
+    JS_GetProperty(cx, perspective, "near", &property);
+    if (!JSVAL_IS_NUMBER(property)) {
+        JS_GetProperty(cx, perspective, "Near", &property);
+    }
+    JS_ValueToNumber(cx, property, &zNear);
+
+    JS_GetProperty(cx, perspective, "far", &property);
+    if (!JSVAL_IS_NUMBER(property)) {
+        JS_GetProperty(cx, perspective, "Far", &property);
+    }
+    JS_ValueToNumber(cx, property, &zFar);
+
+    gluPerspective(fovy, aspect, zNear, zFar);
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+    return JS_TRUE;
+}
+
+JSBool
 GLU_lookAt (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     JSObject* arrays;
